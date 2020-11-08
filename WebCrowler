@@ -1,0 +1,81 @@
+import requests
+import json
+import abc
+from bs4 import BeautifulSoup
+
+#TODO: A database to be connected. Complete extraction of data to be performed. More websites to be added
+
+def getFromCITES(name):
+    # MY_TOKEN = '2LMp6wlATo8Br1G1neab2wtt'
+    url = 'https://api.speciesplus.net/api/v1/taxon_concepts'
+    headers = {'X-Authentication-Token': '2LMp6wlATo8Br1G1neab2wtt', }
+    params = (('name', name),)
+    response = requests.get(url, headers=headers, params=params)
+    print(response.text)
+
+
+def store(data):
+    with open('data.txt', 'w') as f:
+        json.dump(data, f, ensure_ascii=False)
+
+
+class Web_Scraper(abc.ABC):
+    @abc.abstractmethod
+    def scrape(self):
+        pass
+
+
+class Scraper_1(Web_Scraper):
+    # scraper for terraristik
+    def scrape(self):
+        URL = 'https://www.terraristik.com/tb/list_classifieds.php?category_selection=2'
+        page = requests.get(URL)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        data = []
+        table = soup.find('table', attrs={'class': 'inserat-offer inserat_standard'})
+        table_body = table.find_all('div', attrs={'class':'inserat1'})
+        print(type(table_body))
+        # rows = table_body.find_all('tr')
+        # for row in rows:
+        #     cols = row.find_all('td')
+        #     cols = [ele.text.strip() for ele in cols]
+        #     data.append([ele for ele in cols if ele])  # Get rid of empty values
+
+        # for x in results:
+        #     for y in x.find(id='twocols'):
+        #         print(type(y))
+        #         # location = y.find_all(id='anzeigen_main')
+        #         # loc = location.text
+        #         print(y)
+
+
+# class Scraper_2(Web_Scraper):
+#     #scraper for marktplaants
+#     def scrape(self):
+
+
+class Scraper_3(Web_Scraper):
+    # scraper for reptilienserver
+    def scrape(self):
+        URL = 'https://www.reptilienserver.de/suche.html?title=crocodiles'
+        page = requests.get(URL)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        results = soup.find_all(id='right-outside-banner')
+        print(results)
+
+
+class Scraper_4(Web_Scraper):
+    # scraper for hobbyreptiles
+    def scrape(self):
+        URL = 'https://www.hobbyreptiles.com/fr/recherche?controller=search&s=lizards'
+        page = requests.get(URL)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        results = soup.find_all(id='search')
+        print(results)
+
+if __name__ == '__main__':
+    # getFromCITES('Mammalia')
+    p = Scraper_1()
+    p.scrape()
+    # q = Scraper_4()
+    # q.scrape()
